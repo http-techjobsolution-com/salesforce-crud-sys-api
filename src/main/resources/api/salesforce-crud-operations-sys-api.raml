@@ -1,0 +1,109 @@
+#%RAML 1.0
+title: salesforce-crud-operations-api
+
+/contact:
+  /{id}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "Name" : "Jack Rogers", 
+                  "Email" : "jrogers@test.com",
+                  "Department" : "Finance",
+                  "Phone" : 123123,
+                  "DOB" : 1987/22/11,
+                  "CreatedDate" : 2021/25/01
+                }
+    delete:
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "Message" : "Record is deleted successfully"
+                }
+    put:
+      body:
+        application/json:
+          example:
+            {
+              "Name" : "Jack Rogers", 
+              "Email" : "jrogers@test.com",
+              "Department" : "Finance",
+              "Phone" : 123123,
+              "DOB" : 1987/22/11,
+              "CreatedDate" : 2021/25/01
+            }
+      responses:
+        200:
+          body:
+            application/json:
+               example:
+                {
+                  "Message" : "Record is updated successfully"
+                }
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              [
+                {
+                "Name" : "Jack Rogers", 
+                "Email" : "jrogers@test.com",
+                "Department" : "Finance",
+                "Phone" : 123123,
+                "DOB" : 1987/22/11,
+                "CreatedDate" : 2021/25/01
+                }
+              ]
+  
+  put:
+    body:
+      application/json:
+        example:
+          [
+            {
+              "Name" : "Jack Rogers", 
+              "Email" : "jrogers@test.com",
+              "Department" : "Finance",
+              "Phone" : 123123,
+              "DOB" : 1987/22/11,
+              "CreatedDate" : 2021/25/01
+            }
+          ]
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "Message" : "Record is inserted/updated successfully"
+              }
+  post:
+    body:
+      application/json:
+        example:
+          [
+            {
+              "Name" : "Jack Rogers", 
+              "Email" : "jrogers@test.com",
+              "Department" : "Finance",
+              "Phone" : 123123,
+              "DOB" : 1987/22/11,
+              "CreatedDate" : 2021/25/01
+            }
+          ]
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "Message" : "Record is inserted successfully"
+              }

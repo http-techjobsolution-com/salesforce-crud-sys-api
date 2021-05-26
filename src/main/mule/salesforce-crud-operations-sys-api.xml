@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="salesforce-crud-operations-sys-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="salesforce-crud-operations-sys-api-config" api="salesforce-crud-operations-sys-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="salesforce-crud-operations-sys-api-main">
+        <http:listener config-ref="salesforce-crud-operations-sys-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="salesforce-crud-operations-sys-api-config" />
+        <error-handler ref="error-handlingError_Handler">
+            
+        </error-handler>
+    </flow>
+    <flow name="put:\contact:application\json:salesforce-crud-operations-sys-api-config">
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="b77736ec-828d-46ba-b9cd-02f92925b3cf">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	Id : "a005g00002t8bZBAAY",
+	Employee_ID__c	: "1001",
+	Mobile_Phone__c	: 557656,
+	Email__c	:	"test@gmail.com"
+	
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="2f5a37d1-acc9-4526-a1fb-d33bfc6c84f8" config-ref="Salesforce_Config" objectType="Employee__c" externalIdFieldName="Id"/>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Record is inserted/updated successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\contact:application\json:salesforce-crud-operations-sys-api-config">
+		<ee:transform doc:name="Transform Message" doc:id="652afd0a-dda6-4793-91b1-b94f963147ee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	Employee_ID__c	: "1001",
+	Mobile_Phone__c	: 123456789,
+	Email__c	:	"test@gmail.com"
+	
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create doc:name="Create" doc:id="3e0b0db9-5431-4757-a885-265b91269316" config-ref="Salesforce_Config" type="Employee__c"/>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Record is inserted successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\contact\(id):application\json:salesforce-crud-operations-sys-api-config">
+        <ee:transform doc:name="Transform Message" doc:id="62a92690-a983-4086-81a6-cc87a4b51a56">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+[{
+  "Id" : attributes.uriParams.'id',
+  "Name" : payload.Name, 
+  "Email" : payload.Email,
+  "Department" : payload.Department,
+  "Phone" : payload.Phone
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="4fddcbb1-80cf-4b19-990b-88615efd0edc" config-ref="Salesforce_Config" objectType="Contact" externalIdFieldName="Id" />
+		<choice doc:name="Choice" doc:id="78b0a8dd-e9f9-4905-b148-02cc36228ef4" >
+			<when expression="#[payload.items[0].payload.success == false]">
+				<raise-error doc:name="Raise error" doc:id="82fba415-0d7c-43b2-b839-8c31a48e0d41" type="ANY"/>
+			</when>
+			<otherwise >
+				<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Record is updated successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+			</otherwise>
+		</choice>
+    </flow>
+    <flow name="delete:\contact\(id):salesforce-crud-operations-sys-api-config">
+        <ee:transform doc:name="Transform Message" doc:id="461b66a2-49cc-473c-954f-b34b97ac24d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+["a005g00002t8bZGAAY"]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:delete doc:name="Delete" doc:id="83f30097-a483-44aa-8baa-1fc578f0ac80" config-ref="Salesforce_Config"/>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Record is deleted successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\contact:salesforce-crud-operations-sys-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    Name: "Jack Rogers",
+    Email: "jrogers@test.com",
+    Department: "Finance",
+    Phone: 123123,
+    DOB: "1987/22/11",
+    CreatedDate: "2021/25/01"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\contact\(id):salesforce-crud-operations-sys-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Name: "Jack Rogers",
+  Email: "jrogers@test.com",
+  Department: "Finance",
+  Phone: 123123,
+  DOB: "1987/22/11",
+  CreatedDate: "2021/25/01"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

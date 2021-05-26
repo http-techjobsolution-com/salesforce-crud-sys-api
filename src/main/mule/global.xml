@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="abf078e0-f8c9-4fd9-93f4-9d9f3ec95fdd" >
+		<salesforce:basic-connection username="aakashmotaria@gmail.com" password="Aakash@22" securityToken="xgMpe2N1yEW8oGRW6es4tr7bX" />
+	</salesforce:sfdc-config>
+	<configuration doc:name="Configuration" doc:id="913aeded-518b-4a93-acef-25396e97e56f" defaultErrorHandler-ref="error-handlingError_Handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="09f2ee40-f1ed-45eb-b5bf-7ff6e18d0c56" file="${env}.properties" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="b79a5b98-3117-476d-9cf1-e0eaa2a35185" file="${env}.properties" key="${key}" />
+</mule>
